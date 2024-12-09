@@ -8,6 +8,7 @@ import { App } from "./App.tsx";
 import { FriendList } from "./pages/Friend/FriendList.tsx";
 import { ChatList } from "./pages/Chat/ChatList.tsx";
 import { RequestList } from "./pages/Friend/RequestList.tsx";
+import { Chat } from "./pages/Chat/Chat.tsx";
 
 const routeList = [
   {
@@ -25,6 +26,10 @@ const routeList = [
       {
         path: "/chat-list",
         element: <ChatList />,
+      },
+      {
+        path: "/chat",
+        element: <Chat />,
       },
     ],
   },

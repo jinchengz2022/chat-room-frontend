@@ -36,7 +36,7 @@ const Login = async (
       "userInfo",
       JSON.stringify({
         userName: res.data.userName,
-        userId: res.data.userId,
+        userId: res.data.id,
       })
     );
   return res;
@@ -106,4 +106,11 @@ export const chatRequest = {
   ChatMemberList,
   JoinChatRoom,
   QuitChatRoom,
+};
+
+const ChatHistoryList = (chatRoomId: number) =>
+  request.get(`/chat-history/list/${chatRoomId}`);
+
+export const chatHistoryRequest = {
+  ChatHistoryList,
 };
