@@ -13,20 +13,12 @@ export const CreateChatGroupModal: FC<{
 
   const onFinish = async (values: { name: string }) => {
     try {
-      const res =
-        title === "创建群聊"
-          ? await chatRequest.CreateGroup(values.name)
-          : await chatRequest.JoinChatRoom(values.name);
+      const res = await chatRequest.CreateGroup(values.name);
       if (res.status === 200 || res.status === 201) {
-        message.success(
-          `${title === "创建群聊" ? "创建" : "加入"}成功`,
-          1,
-          () => {
-            onCancel();
-            // navigate(`/chat-list/${res.data}`);
-            navigate("/chat-list");
-          }
-        );
+        message.success(`创建成功`, 1, () => {
+          onCancel();
+          navigate("/chat-list");
+        });
       } else {
         message.error(res.data);
       }

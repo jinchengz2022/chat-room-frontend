@@ -4,10 +4,12 @@ import { Button, Menu, Layout, Avatar, message } from "antd";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import { jsonTranstion } from "./utils/jsonTranstion";
+import "./app.less";
 
 const { Header, Footer, Sider, Content } = Layout;
 
 const headerStyle: React.CSSProperties = {
+  borderBottom: "1px solid rgba(5, 5, 5, 0.06)",
   textAlign: "center",
   height: 64,
   paddingInline: 48,
@@ -19,10 +21,7 @@ const headerStyle: React.CSSProperties = {
 };
 
 const contentStyle: React.CSSProperties = {
-  // textAlign: "center",
   minHeight: 120,
-  // lineHeight: "120px",
-  // color: "#fff",
   backgroundColor: "#fff",
 };
 
@@ -54,9 +53,7 @@ const userMenu = [
 
 export const App = () => {
   const { pathname } = useLocation();
-  const { userName, headPic } = jsonTranstion(
-    localStorage.getItem("userInfo")
-  );
+  const { userName, headPic } = jsonTranstion(localStorage.getItem("userInfo"));
   const navigate = useNavigate();
   const [selectKey, setSelectKey] = React.useState<string[]>();
 
@@ -66,11 +63,11 @@ export const App = () => {
         navigate("/login")
       );
     }
-    if (pathname === '/') {
+    if (pathname === "/") {
       navigate(userMenu[0].key);
     }
 
-    setSelectKey([pathname])
+    setSelectKey([`/${pathname.split("/")[1]}`]);
   }, [pathname]);
 
   const selectMenu = (value: any) => {
@@ -80,10 +77,16 @@ export const App = () => {
 
   return (
     <Layout style={layoutStyle}>
-      <Sider style={{ backgroundColor: "#fff" }}>
+      <Sider
+        style={{
+          backgroundColor: "#fff",
+          borderRight: "1px solid rgba(5, 5, 5, 0.06)",
+        }}
+      >
         <Menu
+          key="main-menu"
           selectedKeys={selectKey}
-          style={{ height: "100vh" }}
+          style={{ height: "calc(100vh - 10px)", border: "none" }}
           items={userMenu}
           onClick={selectMenu}
         />

@@ -51,12 +51,15 @@ const UpdatePwd = (params: UserRegisterRequest) =>
 const UpdateUser = (params: Omit<UserRegisterRequest, "password">) =>
   request.post("/user/UpdateUser", params);
 
+const List = () => request.get("/user/List");
+
 export const userRequest = {
   Register,
   Login,
   GetCode,
   UpdatePwd,
   UpdateUser,
+  List,
 };
 
 const AddFriend = (params: AddFriendRequest) =>
@@ -99,6 +102,9 @@ const QuitChatRoom = (chatRoomId: number) =>
 const ChatMemberList = (chatRoomId: number) =>
   request.get(`/chatroom/ChatMemberList/${chatRoomId}`);
 
+const AddGroupMember = (params: { userId: number; chatRoomId: number }) =>
+  request.post(`/chatroom/AddGroupMember`, params);
+
 export const chatRequest = {
   CreateGroup,
   CreateOneByOne,
@@ -106,6 +112,7 @@ export const chatRequest = {
   ChatMemberList,
   JoinChatRoom,
   QuitChatRoom,
+  AddGroupMember
 };
 
 const ChatHistoryList = (chatRoomId: number) =>

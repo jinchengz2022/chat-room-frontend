@@ -26,10 +26,12 @@ const routeList = [
       {
         path: "/chat-list",
         element: <ChatList />,
-      },
-      {
-        path: "/chat",
-        element: <Chat />,
+        children: [
+          {
+            path: "/chat-list/chat/:id",
+            element: <Chat />,
+          },
+        ],
       },
     ],
   },

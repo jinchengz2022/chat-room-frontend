@@ -1,94 +1,82 @@
 import { useEffect, useState } from "react";
-import { Button, Table, message } from "antd";
-import { chatRequest, friendRequest } from "../../request";
-import { jsonTranstion } from "../../utils/jsonTranstion";
-import { CreateChatGroupModal } from "../Friend/CreateChatGroupModal";
+import { Button, Menu, Layout } from "antd";
+import { chatRequest } from "../../request";
+import { Outlet, useNavigate, useParams } from "react-router-dom";
+import { AddMemberModal } from "./AddMemberModal";
 
-const requestStatus: any = {
-  0: "待添加",
-  1: "已添加",
-  2: "已拒绝",
-};
+const { Sider, Content } = Layout;
 
 export const ChatList = () => {
-  const [dataSource, setDateSource] = useState([]);
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const [dataSource, setDateSource] = useState<any[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [menuSelectKeys, setMenuSelectKeys] = useState(id ? [id] : []);
 
   const getList = async () => {
     const res = await chatRequest.ChatList();
     setDateSource(res.data);
   };
 
-  const columns = [
-    {
-      dataIndex: "name",
-      key: "name",
-      title: "会议名称",
-    },
-    {
-      dataIndex: "userCount",
-      key: "userCount",
-      title: "群聊人数",
-    },
-    {
-      dataIndex: "type",
-      key: "type",
-      render: (_: boolean) => (_ ? "群聊" : null),
-    },
-    // {
-    //   dataIndex: "state",
-    //   key: "state",
-    //   render: (_: number) => requestStatus[_],
-    // },
-    // {
-    //   dataIndex: "operate",
-    //   key: "operate",
-    //   render: (_: any, record: any) => {
-    //     return !record.isMe ? (
-    //       <div>
-    //         <Button
-    //           type="link"
-    //           onClick={() => agreeOrReject(record.id, "agree")}
-    //         >
-    //           添加
-    //         </Button>
-    //         <Button
-    //           type="link"
-    //           danger
-    //           onClick={() => agreeOrReject(record.id, "reject")}
-    //         >
-    //           拒绝
-    //         </Button>
-    //       </div>
-    //     ) : null;
-    //   },
-    // },
-  ];
-
   useEffect(() => {
     getList();
   }, []);
 
   return (
-    <div>
-      <Button
-        onClick={() => {
-          setModalOpen(true);
+    <Layout>
+      <Sider
+        style={{
+          paddingTop: 8,
+          background: "#fff",
+          borderRight: "1px solid rgba(5, 5, 5, 0.06)",
         }}
-        style={{ marginBottom: 24}}
       >
-        加入群聊
-      </Button>
-      <Table dataSource={dataSource} columns={columns} />
+        {dataSource?.find?.((i: any) => i.id === +id!)?.type === true ? (
+          <Button
+            onClick={() => {
+              setModalOpen(true);
+            }}
+            style={{ margin: "0 0 24px 12px" }}
+          >
+            添加成员
+          </Button>
+        ) : null}
+
+        <Menu
+          selectedKeys={menuSelectKeys}
+          key="chat-menu"
+          style={{ height: "calc(100vh - 130px)", border: "none" }}
+        >
+          {dataSource.map((i: any) => (
+            <Menu.Item
+              key={i.id}
+              onClick={(value) => {
+                navigate(`/chat-list/chat/${value.key}`);
+                setMenuSelectKeys([value.key]);
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <span>{i.name}</span>
+                {i.type && i.userCount - 1 !== 0 ? (
+                  <span>（{i.userCount - 1}人）</span>
+                ) : null}
+              </div>
+            </Menu.Item>
+          ))}
+        </Menu>
+      </Sider>
+      <Content style={{ paddingTop: 8, background: "#fff" }}>
+        <Outlet />
+      </Content>
       {modalOpen ? (
-        <CreateChatGroupModal
-        title="加入群聊"
+        <AddMemberModal
           open={modalOpen}
           onCancel={() => {
             setModalOpen(false);
+            getList();
           }}
         />
       ) : null}
-    </div>
+    </Layout>
   );
 };
