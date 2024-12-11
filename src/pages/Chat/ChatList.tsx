@@ -46,24 +46,22 @@ export const ChatList = () => {
           selectedKeys={menuSelectKeys}
           key="chat-menu"
           style={{ height: "calc(100vh - 130px)", border: "none" }}
-        >
-          {dataSource.map((i: any) => (
-            <Menu.Item
-              key={i.id}
-              onClick={(value) => {
-                navigate(`/chat-list/chat/${value.key}`);
-                setMenuSelectKeys([value.key]);
-              }}
-            >
+          items={dataSource.map((i) => ({
+            label: (
               <div style={{ display: "flex", alignItems: "center" }}>
                 <span>{i.name}</span>
                 {i.type && i.userCount - 1 !== 0 ? (
                   <span>（{i.userCount - 1}人）</span>
                 ) : null}
               </div>
-            </Menu.Item>
-          ))}
-        </Menu>
+            ),
+            key: i.id,
+            onClick: (value) => {
+              navigate(`/chat-list/chat/${value.key}`);
+              setMenuSelectKeys([value.key]);
+            },
+          }))}
+        />
       </Sider>
       <Content style={{ paddingTop: 8, background: "#fff" }}>
         <Outlet />

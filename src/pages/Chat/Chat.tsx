@@ -1,7 +1,9 @@
-import { Button, Image, Input, Space } from "antd";
+import { Button, Image, Input, Popover, Space } from "antd";
 import * as React from "react";
 import { io, Socket } from "socket.io-client";
 import { useParams } from "react-router-dom";
+import EmojiPicker from "@emoji-mart/react";
+import data from "@emoji-mart/data";
 
 import { jsonTranstion } from "../../utils/jsonTranstion";
 import { chatHistoryRequest } from "../../request";
@@ -41,8 +43,9 @@ export const Chat = () => {
   const { id } = useParams();
   const { userId } = jsonTranstion(localStorage.getItem("userInfo"));
   const [messageList, setMessageList] = React.useState<
-    (Message & { sender: SenderInfomation })[]
+    (Message & { sender: SenderInfomation; id: number })[]
   >([]);
+  const [inputValue, setInputValue] = React.useState("");
   const socketRef = React.useRef<Socket>();
   const inputRef = React.useRef<any>();
 
@@ -80,19 +83,16 @@ export const Chat = () => {
     };
   }, [id]);
 
-  
-
   const sendMessage = () => {
-    if(id) {
-      const value = inputRef.current?.resizableTextArea?.textArea?.value;
+    if (id) {
+      const payload: SendMessagePayload = {
+        sendUserId: userId,
+        chatRoomId: +id,
+        message: { type: "text", content: inputValue },
+      };
 
-    const payload: SendMessagePayload = {
-      sendUserId: userId,
-      chatRoomId: +id,
-      message: { type: "text", content: value },
-    };
-
-    socketRef.current?.emit("sendMessage", payload);
+      socketRef.current?.emit("sendMessage", payload);
+      setInputValue("");
     }
   };
 
@@ -102,13 +102,14 @@ export const Chat = () => {
         style={{
           height: "calc(100vh - 220px)",
           overflow: "auto",
-          padding: '0 4px'
+          padding: "0 4px",
         }}
       >
         {messageList.map((i) => {
           const isSelf = i.sender.id === userId;
           return (
             <div
+              key={i.id}
               style={{
                 display: "flex",
                 justifyContent: isSelf ? "end" : "start",
@@ -136,7 +137,7 @@ export const Chat = () => {
                     backgroundColor: isSelf ? "#1AAd19" : "#f1f1f1",
                     color: isSelf ? "#fff" : "#000",
                     padding: "4px 12px",
-                    minHeight: 26
+                    minHeight: 26,
                   }}
                 >
                   {i.type === "image" ? <Image src={i.content} /> : i.content}
@@ -146,6 +147,7 @@ export const Chat = () => {
           );
         })}
       </div>
+      <div id="bottom-bar" key="bottom-bar" />
       <div
         style={{
           maxHeight: 130,
@@ -162,19 +164,33 @@ export const Chat = () => {
           }}
         >
           <div>
-            <Button type="link">文字</Button>
-            <Button type="link">表情</Button>
-            <Button type="link">文件</Button>
+            <Popover
+              content={
+                <EmojiPicker
+                  data={data}
+                  onEmojiSelect={(emoji: any) => {
+                    setInputValue((pre) => pre + emoji.native);
+                  }}
+                />
+              }
+            >
+              <Button type="link" style={{ paddingLeft: 0 }}>
+                表情
+              </Button>
+            </Popover>
+            <Button type="link">图片</Button>
           </div>
-          <Button onClick={sendMessage}>send</Button>
+          <Button onClick={sendMessage}>发送</Button>
         </div>
         <Input.TextArea
-          ref={inputRef}
+          onChange={(v) => {
+            setInputValue(v.target.value);
+          }}
+          value={inputValue}
           autoSize
           style={{ width: "calc(100vw - 400px)", marginTop: 8 }}
         />
       </div>
-      <div id="bottom-bar" key="bottom-bar" />
     </div>
   );
 };
